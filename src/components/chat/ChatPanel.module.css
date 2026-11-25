@@ -1,0 +1,100 @@
+/* Below 1180 px: a sheet over the content from the right. */
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: min(100vw, 440px);
+  height: 100vh;
+  height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-panel);
+  border-left: 1px solid var(--color-border);
+  box-shadow: -24px 0 48px var(--color-sheet-shadow);
+  animation: sheet-in 0.2s ease-out;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* 1180 px and up: a column beside the content (App.module.css lays the two out). */
+@media (min-width: 1180px) {
+  .panel {
+    position: sticky;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
+    flex: 0 0 400px;
+    width: 400px;
+    box-shadow: none;
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+.head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+/* Like the stack's protocol tags */
+.provider {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-chip);
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+.provider[data-ready] {
+  color: var(--color-sage);
+  border-color: var(--color-sage-border);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: -6px -8px -6px auto;
+}
+
+.back {
+  margin: -6px -4px -6px -8px;
+}
+
+.notice {
+  flex: 0 0 auto;
+  padding: 0 16px 12px;
+}

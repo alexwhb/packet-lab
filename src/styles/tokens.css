@@ -1,0 +1,77 @@
+/* Design tokens. Every colour in the app lives here, named by the role it plays. */
+:root {
+  /* Ground and surfaces, darkest first */
+  --color-ground: #000000;
+  --color-well: #050505; /* payload textarea */
+  --color-panel: #0a0a0a; /* panels, header controls */
+  --color-surface-off: #111111; /* wire segment outside the PDU */
+  --color-surface-cell: #121212; /* header-grid and frame cells */
+  --color-row-hover: #121212;
+  --color-surface-chip: #141414; /* character table cells */
+  --color-row-selected: #151515;
+  --color-toggle-on: #1c1c1c; /* pressed button in a segmented group */
+
+  /* Lines */
+  --color-divider: #181818; /* between layer rows */
+  --color-wave-grid: #1a1a1a;
+  --color-border-off: #1c1c1c; /* wire segment outside the PDU */
+  --color-border: #222222; /* panels, section dividers */
+  --color-track: #222222; /* mini frame bar outside the PDU */
+  --color-border-cell: #262626;
+  --color-border-control: #2a2a2a; /* inputs, groups, outline buttons */
+  --color-wave-axis: #2a2a2a;
+  --color-border-dashed: #2e2e2e; /* preamble cell */
+  --color-line-idle: #3a3a3a; /* session arrows, later-frame hop links */
+
+  /* Text, brightest first */
+  --color-text-strong: #ffffff;
+  --color-text: #ececec;
+  --color-text-byte: #cfcfcf; /* hex byte inside the PDU */
+  --color-text-nav: #bdbdbd;
+  --color-text-secondary: #a6a6a6;
+  --color-text-muted: #8f8f8f;
+  --color-text-faint: #7a7a7a;
+  --color-text-dim: #5c5c5c;
+  --color-text-off: #474747; /* hex byte outside the PDU */
+  --color-on-accent: #0a0a0a;
+
+  /* Amber: selection, headers, the signal */
+  --color-accent: #f2a541;
+  --color-accent-hover: #f7c27a;
+  --color-accent-tint: #17130c;
+  --color-accent-border: #5a4422;
+
+  /* Sage: payload, live state, forward navigation */
+  --color-sage: #8fbfa0;
+  --color-sage-strong: #3d5245;
+  --color-sage-border: #2b3a31;
+  --color-sage-tint: #111814;
+  --color-sage-button: #121a15;
+
+  /* Danger: failed answers in the chat panel */
+  --color-danger: #e8806a;
+  --color-danger-tint: #1a0f0d;
+  --color-danger-border: #4a2620;
+
+  /* Chat panel */
+  --color-border-hover: #3a3a3a; /* outline rows and buttons on hover */
+  --color-chat-bubble: var(--color-surface-chip); /* the user's questions */
+  --color-code-inline: var(--color-surface-chip);
+  --color-code-block: var(--color-well);
+  --color-sheet-shadow: rgba(0, 0, 0, 0.6); /* the panel as an overlay on narrow screens */
+
+  /* Graph-paper background lines */
+  --color-grid-major: rgba(255, 255, 255, 0.0525);
+  --color-grid-minor: rgba(255, 255, 255, 0.026);
+
+  /* Type */
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Shape */
+  --radius-panel: 10px;
+  --radius-control: 8px;
+  --radius-button: 6px;
+  --radius-cell: 5px;
+  --radius-chip: 4px;
+}

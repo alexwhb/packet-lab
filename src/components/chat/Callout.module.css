@@ -1,0 +1,32 @@
+.callout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-row-hover);
+}
+
+.callout[data-tone='danger'] {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-tint);
+}
+
+.text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.callout[data-tone='danger'] .text {
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

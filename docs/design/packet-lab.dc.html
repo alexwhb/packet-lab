@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Packet Lab</title>
+<script src="e84b03fc-f292-4513-8f0b-ecb079d1d99b"></script>
+<meta name="hz:slide-selector" content="[data-canvas-width]"><meta name="hz:canvas-width" content="1440"><meta name="hz:canvas-height" content="1520"></head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style></style>
+<style>
+body{margin:0;background:#000}
+a{color:#F2A541}a:hover{color:#F7C27A}
+.pl button{font:inherit;color:inherit;cursor:pointer}
+.pl button:focus-visible,.pl input:focus-visible,.pl textarea:focus-visible{outline:2px solid #8FBFA0;outline-offset:2px}
+.pl .seg{transition:flex-grow .5s ease,min-width .5s ease,opacity .35s ease}
+.pl .lrow:hover{background:#121212}
+.pl .byte:hover{box-shadow:0 0 0 1px #8FBFA0}
+@keyframes plpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pl .pulse{animation:plpulse 1s ease-in-out infinite}
+</style>
+</helmet>
+<div class="pl" style="min-height: 100vh; background-color: #000000; background-image: linear-gradient(rgba(255,255,255,0.0525) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.0525) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.026) 1px, transparent 1px); background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; color: #ECECEC; font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.5" data-canvas-width="1440" data-canvas-height="1520" data-document-role="page" data-label="Packet Lab — interactive">
+<div style="max-width: 1440px; margin: 0 auto; padding: 24px 32px 56px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding-bottom: 20px; border-bottom: 1px solid #222222">
+  <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto">
+    <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 2px; background: #F2A541"></span>
+    <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em">Packet Lab</span>
+  </div>
+  <div style="flex: 1 1 560px; display: flex; flex-direction: column; gap: 10px; min-width: 0">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+      <div style="flex: 1 1 320px; display: flex; align-items: center; gap: 12px; background: #0A0A0A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 0 14px; min-height: 44px; box-sizing: border-box">
+        <label for="pl-url" style="font-size: 12px; font-weight: 500; color: #8F8F8F">URL</label>
+        <input id="pl-url" type="text" value="{{draft}}" sc-camel-on-change="{{onDraft}}" sc-camel-on-key-down="{{onKey}}" style="flex: 1; min-width: 0; background: transparent; border: 0; color: #ECECEC; font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 11px 0; outline: none">
+      </div>
+      <button type="button" sc-camel-on-click="{{onSend}}" style="min-height: 44px; padding: 0 20px; border-radius: 8px; border: 0; background: #F2A541; color: #0A0A0A; font-weight: 600; font-size: 14px; white-space: nowrap">{{sendLabel}}</button>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+      <span style="font-size: 12px; color: #8F8F8F">Protocol</span>
+      <div role="group" aria-label="Protocol" style="display: flex; flex-wrap: wrap; background: #0A0A0A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 3px; gap: 3px">
+        <sc-for list="{{protoOpts}}" as="p" hint-placeholder-count="8">
+          <button type="button" sc-camel-on-click="{{p.pick}}" aria-pressed="{{p.pressed}}" style="display: flex; align-items: center; gap: 8px; border: 1px solid {{p.border}}; border-radius: 6px; padding: 0 10px; min-height: 34px; background: {{p.bg}}; color: {{p.fg}}; font-size: 13px; white-space: nowrap">
+            <span>{{p.label}}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: {{p.tagFg}}">{{p.t}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  <div role="group" aria-label="Direction" style="display: flex; background: #0A0A0A; border: 1px solid #2A2A2A; border-radius: 8px; padding: 3px; gap: 3px; flex: 0 0 auto; align-self: flex-start">
+    <sc-for list="{{dirOpts}}" as="d" hint-placeholder-count="2">
+      <button type="button" sc-camel-on-click="{{d.pick}}" aria-pressed="{{d.pressed}}" style="border: 0; border-radius: 6px; padding: 0 12px; min-height: 36px; font-size: 13px; background: {{d.bg}}; color: {{d.fg}}; white-space: nowrap">{{d.label}}</button>
+    </sc-for>
+  </div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+
+  <nav aria-label="Network layers" style="flex: 1 1 270px; min-width: 0; background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; overflow: hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #222222">
+      <span style="font-size: 13px; font-weight: 600">OSI stack</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F8F8F">{{stackHint}}</span>
+    </div>
+    <sc-for list="{{groups}}" as="grp" hint-placeholder-count="4">
+      <div style="border-bottom: 1px solid #222222">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px 4px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #7A7A7A">
+          <span>{{grp.label}}</span>
+          <span style="font-family: 'JetBrains Mono', monospace; letter-spacing: 0">{{grp.range}}</span>
+        </div>
+        <sc-for list="{{grp.rows}}" as="l" hint-placeholder-count="2">
+          <button type="button" class="lrow" sc-camel-on-click="{{l.pick}}" aria-current="{{l.current}}" style="display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 16px; box-sizing: border-box; border: 0; border-top: 1px solid {{l.divider}}; background: {{l.bg}}; text-align: left">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{l.numColor}}">{{l.n}}</span>
+            <span style="display: flex; flex-direction: column; min-width: 0">
+              <span style="display: flex; align-items: center; gap: 8px">
+                <span style="font-weight: 500; color: {{l.nameColor}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.name}}</span>
+                <sc-if value="{{l.live}}" hint-placeholder-val="{{false}}">
+                  <span class="pulse" aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: #8FBFA0"></span>
+                </sc-if>
+              </span>
+              <span style="font-size: 12px; color: #8F8F8F; white-space: nowrap">{{l.pdu}} · {{l.added}}</span>
+            </span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{l.tagColor}}; border: 1px solid {{l.tagBorder}}; border-radius: 4px; padding: 2px 6px; white-space: nowrap">{{l.proto}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-for>
+    <div style="padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; font-size: 12px">
+        <span style="color: #8F8F8F">Frame on the wire</span>
+        <span style="font-family: 'JetBrains Mono', monospace">{{frameBytes}} B</span>
+      </div>
+      <div aria-hidden="true" style="display: flex; gap: 2px; height: 8px">
+        <sc-for list="{{miniSegs}}" as="g" hint-placeholder-count="7">
+          <span style="flex: {{g.grow}} 1 0px; border-radius: 2px; background: {{g.bg}}"></span>
+        </sc-for>
+      </div>
+      <div style="display: flex; gap: 14px; font-size: 11px; color: #8F8F8F">
+        <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 2px; background: #F2A541"></span>header</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 2px; background: #3D5245"></span>payload</span>
+      </div>
+    </div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 12px; color: #8F8F8F">Layer {{layerNum}} · {{meta.name}}<sc-if value="{{playing}}" hint-placeholder-val="{{false}}"><span style="color: #8FBFA0"> · {{playLabel}}</span></sc-if></span>
+      <h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2">{{meta.title}}</h1>
+      <p style="margin: 0; color: #A6A6A6; font-size: 14px">{{meta.job}}</p>
+    </div>
+
+    <section aria-label="Payload" style="background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+        <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+          <label for="pl-payload" style="font-size: 13px; font-weight: 600">Payload</label>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8F8F8F">{{payloadInfo}}</span>
+          <sc-if value="{{isCustom}}" hint-placeholder-val="{{false}}">
+            <span style="font-size: 11px; color: #F2A541; border: 1px solid #5A4422; border-radius: 4px; padding: 0 6px">edited</span>
+          </sc-if>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+          <sc-if value="{{isDns}}" hint-placeholder-val="{{false}}">
+            <div role="group" aria-label="Record type" style="display: flex; border: 1px solid #2A2A2A; border-radius: 6px; padding: 2px; gap: 2px">
+              <sc-for list="{{dnsTypes}}" as="t" hint-placeholder-count="4">
+                <button type="button" sc-camel-on-click="{{t.pick}}" aria-pressed="{{t.pressed}}" style="border: 0; border-radius: 4px; padding: 0 10px; min-height: 28px; font-size: 12px; font-family: 'JetBrains Mono', monospace; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <button type="button" sc-camel-on-click="{{onReset}}" style="min-height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #2A2A2A; background: transparent; color: {{resetFg}}; font-size: 12px">Reset</button>
+        </div>
+      </div>
+      <textarea id="pl-payload" value="{{payloadText}}" sc-camel-on-change="{{onPayload}}" rows="{{payloadRows}}" style="width: 100%; box-sizing: border-box; resize: vertical; background: #050505; border: 1px solid #2A2A2A; border-radius: 6px; padding: 10px 12px; color: #ECECEC; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none"></textarea>
+      <span style="font-size: 12px; color: #7A7A7A">{{payloadHint}} Type \xNN for any byte, \r \n \t for control characters. Max 600 characters.</span>
+    </section>
+
+    <section aria-label="On the wire" style="background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600">On the wire</h2>
+        <span style="font-size: 12px; color: #8F8F8F; font-family: 'JetBrains Mono', monospace">{{pduCaption}}</span>
+      </div>
+      <div style="display: flex; gap: 3px; height: 52px">
+        <sc-for list="{{segs}}" as="g" hint-placeholder-count="7">
+          <button type="button" class="seg" sc-camel-on-click="{{g.pick}}" aria-label="{{g.aria}}" style="flex: {{g.grow}} 1 0px; min-width: {{g.minw}}px; opacity: {{g.op}}; background: {{g.bg}}; color: {{g.fg}}; border: 1px solid {{g.border}}; border-radius: 5px; padding: 0; overflow: hidden">
+            <span style="display: flex; flex-direction: column; align-items: flex-start; padding: 6px 10px; white-space: nowrap; text-align: left">
+              <span style="font-size: 12px; font-weight: 500">{{g.label}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; opacity: 0.75">{{g.bytes}} B</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Layer detail" style="background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+
+      <sc-if value="{{isL7}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 2px; overflow-x: auto">
+          <sc-for list="{{fieldList}}" as="f" hint-placeholder-count="6">
+            <button type="button" sc-camel-on-click="{{f.pick}}" style="display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; align-items: center; gap: 14px; text-align: left; border: 1px solid {{f.border}}; background: {{f.tint}}; border-radius: 6px; padding: 8px 12px; min-height: 40px">
+              <span style="font-size: 12px; color: #8F8F8F; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{f.name}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{f.text}}; white-space: pre; overflow: hidden; text-overflow: ellipsis">{{f.value}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8F8F8F; white-space: nowrap">{{f.size}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isL6}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{fieldList}}" as="f" hint-placeholder-count="4">
+              <button type="button" sc-camel-on-click="{{f.pick}}" style="border: 1px solid {{f.pillBorder}}; background: {{f.pillBg}}; color: {{f.pillFg}}; border-radius: 6px; padding: 0 12px; min-height: 34px; font-size: 13px">{{f.name}}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{hasChars}}" hint-placeholder-val="{{true}}">
+            <div style="overflow-x: auto">
+              <div style="display: grid; grid-template-columns: 80px repeat({{charCount}}, minmax(44px, 1fr)); gap: 3px; min-width: 520px; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: center">
+                <span style="font-family: Inter, sans-serif; color: #8F8F8F; text-align: left; align-self: center">Char</span>
+                <sc-for list="{{chars}}" as="c" hint-placeholder-count="12"><span style="background: #141414; border-radius: 4px; padding: 7px 0; font-size: 14px; color: #ECECEC">{{c.ch}}</span></sc-for>
+                <span style="font-family: Inter, sans-serif; color: #8F8F8F; text-align: left; align-self: center">Hex</span>
+                <sc-for list="{{chars}}" as="c" hint-placeholder-count="12"><span style="background: #141414; border-radius: 4px; padding: 6px 0; color: #A6A6A6">{{c.hex}}</span></sc-for>
+                <span style="font-family: Inter, sans-serif; color: #8F8F8F; text-align: left; align-self: center">Binary</span>
+                <sc-for list="{{chars}}" as="c" hint-placeholder-count="12"><span style="background: #141414; border-radius: 4px; padding: 6px 0; font-size: 11px; color: #8F8F8F; line-height: 1.35; white-space: pre-line">{{c.bin}}</span></sc-for>
+                <sc-if value="{{hasTransform}}" hint-placeholder-val="{{false}}">
+                  <span style="font-family: Inter, sans-serif; color: #8F8F8F; text-align: left; align-self: center">{{transformLabel}}</span>
+                  <sc-for list="{{chars}}" as="c" hint-placeholder-count="12"><span style="border: 1px solid #3D5245; border-radius: 4px; padding: 5px 0; color: #8FBFA0">{{c.enc}}</span></sc-for>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isL5}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; justify-content: space-between; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8F8F8F; padding: 0 12px">
+            <span>{{sock.client}}</span>
+            <span style="overflow: hidden; text-overflow: ellipsis">{{sock.server}}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <sc-for list="{{fieldList}}" as="f" hint-placeholder-count="6">
+              <button type="button" sc-camel-on-click="{{f.pick}}" style="display: flex; flex-direction: column; gap: 6px; text-align: left; border: 1px solid {{f.border}}; background: {{f.tint}}; border-radius: 6px; padding: 8px 12px; min-height: 48px">
+                <span style="display: flex; gap: 10px; align-items: baseline; justify-content: {{f.justify}}; width: 100%; flex-wrap: wrap">
+                  <span style="font-size: 13px; font-weight: 500; color: {{f.text}}">{{f.name}}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F8F8F">{{f.detail}}</span>
+                </span>
+                <sc-if value="{{f.right}}" hint-placeholder-val="{{true}}">
+                  <span aria-hidden="true" style="display: flex; align-items: center; width: 100%"><span style="flex: 1; height: 1px; background: {{f.line}}"></span><svg width="8" height="8" sc-camel-view-box="0 0 10 10"><path d="M0 0 L10 5 L0 10 Z" fill="{{f.line}}"></path></svg></span>
+                </sc-if>
+                <sc-if value="{{f.left}}" hint-placeholder-val="{{false}}">
+                  <span aria-hidden="true" style="display: flex; align-items: center; width: 100%"><svg width="8" height="8" sc-camel-view-box="0 0 10 10"><path d="M10 0 L0 5 L10 10 Z" fill="{{f.line}}"></path></svg><span style="flex: 1; height: 1px; background: {{f.line}}"></span></span>
+                </sc-if>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isGrid}}" hint-placeholder-val="{{false}}">
+        <div style="overflow-x: auto">
+          <div style="min-width: 560px; display: flex; flex-direction: column; gap: 4px">
+            <div aria-hidden="true" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #5C5C5C">
+              <span>0</span><span>8</span><span>16</span><span>24</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 3px">
+              <sc-for list="{{gridFields}}" as="f" hint-placeholder-count="10">
+                <button type="button" sc-camel-on-click="{{f.pick}}" style="grid-column: span {{f.bits}}; min-height: 56px; border-radius: 5px; border: 1px solid {{f.cellBorder}}; background: {{f.cellBg}}; color: {{f.cellFg}}; padding: 6px 8px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; overflow: hidden; min-width: 0">
+                  <span style="font-size: 11px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%">{{f.short}}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%">{{f.value}}</span>
+                </button>
+              </sc-for>
+            </div>
+            <button type="button" sc-camel-on-click="{{gridPayload.pick}}" style="margin-top: 3px; min-height: 40px; border-radius: 5px; border: 1px dashed {{gridPayload.border}}; background: {{gridPayload.bg}}; color: {{gridPayload.fg}}; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 12px; font-size: 13px">
+              <span>{{gridPayload.name}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace">{{gridPayload.value}}</span>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isL2}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="overflow-x: auto">
+            <div style="display: flex; gap: 3px; min-width: 620px">
+              <div style="flex: 3 1 0px; border-radius: 5px; border: 1px dashed #2E2E2E; padding: 8px; display: flex; flex-direction: column; gap: 2px; min-height: 80px; box-sizing: border-box; color: #7A7A7A">
+                <span style="font-size: 11px">Preamble</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px">8 B</span>
+              </div>
+              <sc-for list="{{fieldList}}" as="f" hint-placeholder-count="5">
+                <button type="button" sc-camel-on-click="{{f.pick}}" style="flex: {{f.weight}} 1 0px; min-width: 0; border-radius: 5px; border: 1px solid {{f.cellBorder}}; background: {{f.cellBg}}; color: {{f.cellFg}}; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 2px; min-height: 80px">
+                  <span style="font-size: 11px; opacity: 0.7">{{f.short}} · {{f.size}}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; word-break: break-all">{{f.value}}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0">
+            <sc-for list="{{hops}}" as="h" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; flex: {{h.flex}}; min-width: 0">
+                <div style="border: 1px solid #2A2A2A; border-radius: 6px; padding: 8px 12px; display: flex; flex-direction: column; min-width: 140px; box-sizing: border-box">
+                  <span style="font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{h.title}}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F8F8F">{{h.mac}}</span>
+                </div>
+                <sc-if value="{{h.hasLink}}" hint-placeholder-val="{{true}}">
+                  <div style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 8px">
+                    <span style="font-size: 11px; color: {{h.labelColor}}">{{h.linkLabel}}</span>
+                    <span aria-hidden="true" style="width: 100%; border-top: 1px {{h.linkStyle}} {{h.linkColor}}"></span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isL1}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{fieldList}}" as="f" hint-placeholder-count="4">
+                <button type="button" sc-camel-on-click="{{f.pick}}" style="border: 1px solid {{f.pillBorder}}; background: {{f.pillBg}}; color: {{f.pillFg}}; border-radius: 6px; padding: 0 12px; min-height: 34px; font-size: 13px">{{f.name}}</button>
+              </sc-for>
+            </div>
+            <div role="group" aria-label="Line code" style="display: flex; border: 1px solid #2A2A2A; border-radius: 6px; padding: 2px; gap: 2px">
+              <sc-for list="{{encOpts}}" as="e" hint-placeholder-count="3">
+                <button type="button" sc-camel-on-click="{{e.pick}}" aria-pressed="{{e.pressed}}" style="border: 0; border-radius: 4px; padding: 0 10px; min-height: 30px; font-size: 12px; background: {{e.bg}}; color: {{e.fg}}">{{e.label}}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: grid; grid-template-columns: repeat(16, minmax(0, 1fr))">
+              <sc-for list="{{waveBits}}" as="b" hint-placeholder-count="16">
+                <span style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{b.color}}">{{b.b}}</span>
+              </sc-for>
+            </div>
+            <svg sc-camel-view-box="0 0 832 200" sc-camel-preserve-aspect-ratio="none" role="img" aria-label="{{waveAria}}" style="width: 100%; height: 180px; display: block">
+              <path d="M0 100 H832" stroke="#2A2A2A" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+              <path d="{{gridPath}}" stroke="#1A1A1A" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+              <path d="{{wavePath}}" fill="none" stroke="#F2A541" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+            </svg>
+            <span style="font-size: 12px; color: #8F8F8F">{{waveLegend}}</span>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <section aria-label="Raw bytes" style="background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-size: 13px; font-weight: 600">Bytes</h2>
+      <div style="overflow-x: auto">
+        <div style="display: flex; flex-direction: column; gap: 1px; min-width: 620px; font-family: 'JetBrains Mono', monospace; font-size: 12px">
+          <sc-for list="{{hexRows}}" as="r" hint-placeholder-count="10">
+            <div style="display: flex; align-items: center; gap: 14px">
+              <span style="flex: 0 0 36px; color: #5C5C5C">{{r.off}}</span>
+              <span style="display: flex; gap: 1px">
+                <sc-for list="{{r.bytes}}" as="b" hint-placeholder-count="16">
+                  <button type="button" class="byte" sc-camel-on-click="{{b.pick}}" aria-label="{{b.aria}}" style="width: 25px; height: 22px; padding: 0; border: 0; border-radius: 3px; margin-left: {{b.ml}}px; background: {{b.bg}}; color: {{b.fg}}; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{b.hex}}</button>
+                </sc-for>
+              </span>
+              <span style="color: #5C5C5C; white-space: pre">{{r.ascii}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside aria-label="Field details" style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+    <section style="background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: #8F8F8F">
+        <span>{{exp.eyebrow}}</span>
+        <span style="font-family: 'JetBrains Mono', monospace">{{exp.pos}}</span>
+      </div>
+      <h2 style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25">{{exp.name}}</h2>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #F2A541; word-break: break-word; white-space: pre-wrap">{{exp.value}}</span>
+      <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #A6A6A6">{{exp.about}}</p>
+      <div style="display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 12px; padding-top: 12px; border-top: 1px solid #222222">
+        <span style="color: #8F8F8F">Size</span><span style="font-family: 'JetBrains Mono', monospace">{{exp.size}}</span>
+        <span style="color: #8F8F8F">Offset</span><span style="font-family: 'JetBrains Mono', monospace">{{exp.where}}</span>
+        <span style="color: #8F8F8F">Hex</span><span style="font-family: 'JetBrains Mono', monospace; word-break: break-all">{{exp.hex}}</span>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <button type="button" sc-camel-on-click="{{onPrev}}" style="flex: 1; min-height: 40px; border-radius: 8px; border: 1px solid #2A2A2A; background: transparent; color: #ECECEC; font-size: 13px">Previous</button>
+        <button type="button" sc-camel-on-click="{{onNext}}" style="flex: 1; min-height: 40px; border-radius: 8px; border: 1px solid #3D5245; background: #121A15; color: #8FBFA0; font-size: 13px">Next</button>
+      </div>
+    </section>
+
+    <section style="background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column">
+      <sc-for list="{{summary}}" as="s" hint-placeholder-count="6">
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 13px">
+          <span style="color: #8F8F8F; white-space: nowrap">{{s.k}}</span>
+          <span style="font-family: 'JetBrains Mono', monospace; text-align: right; word-break: break-all">{{s.v}}</span>
+        </div>
+      </sc-for>
+    </section>
+  </aside>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1560}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { url: 'http://192.168.1.1', draft: 'http://192.168.1.1', layer: 3, field: 7, enc: 'manchester', dir: 'send', playing: false, step: 0, payloads: {}, dnsType: 'A' };
+    this._timer = null;
+    this._key = null;
+    this._model = null;
+  }
+
+  componentWillUnmount() { this.stopTimer(); }
+  stopTimer() { if (this._timer) { clearInterval(this._timer); this._timer = null; } }
+
+  hex2(b) { return (b < 16 ? '0' : '') + b.toString(16).toUpperCase(); }
+  hexRange(bytes, a, b, max) {
+    const out = [];
+    for (let i = a; i < b && out.length < max; i++) out.push(this.hex2(bytes[i]));
+    return out.join(' ') + (b - a > max ? ' …' : '');
+  }
+  utf8(str) { return Array.from(new TextEncoder().encode(str)); }
+  hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  crc32(bytes) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let k = 0; k < 8; k++) crc = (crc & 1) ? ((crc >>> 1) ^ 0xEDB88320) : (crc >>> 1);
+    }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  csum(bytes) {
+    let s = 0;
+    for (let i = 0; i < bytes.length; i += 2) s += (bytes[i] << 8) + (i + 1 < bytes.length ? bytes[i + 1] : 0);
+    while (s >>> 16) s = (s & 0xFFFF) + (s >>> 16);
+    return (~s) & 0xFFFF;
+  }
+  macStr(m) { return m.map((b) => this.hex2(b).toLowerCase()).join(':'); }
+  preview(bytes, max) {
+    let s = '';
+    for (let i = 0; i < Math.min(bytes.length, max); i++) { const b = bytes[i]; s += (b >= 32 && b < 127) ? String.fromCharCode(b) : '·'; }
+    return s + (bytes.length > max ? '…' : '');
+  }
+
+  // Text → bytes. Supports \xNN, \r, \n, \t, \0, \\. Newlines become CRLF when crlf is true.
+  decode(text, crlf) {
+    const ch = Array.from((text || '').replace(/\r\n/g, '\n'));
+    const out = [];
+    const map = { r: 13, n: 10, t: 9, '0': 0, '\\': 92 };
+    for (let i = 0; i < ch.length; i++) {
+      const c = ch[i];
+      if (c === '\\' && i + 1 < ch.length) {
+        const n = ch[i + 1];
+        const hh = (ch[i + 2] || '') + (ch[i + 3] || '');
+        if (n === 'x' && /^[0-9a-fA-F]{2}$/.test(hh)) { out.push(parseInt(hh, 16)); i += 3; continue; }
+        if (map[n] !== undefined) { out.push(map[n]); i += 1; continue; }
+      }
+      if (c === '\n') { if (crlf) out.push(13); out.push(10); continue; }
+      const b = this.utf8(c); for (let k = 0; k < b.length; k++) out.push(b[k]);
+    }
+    return out;
+  }
+
+  protocols() {
+    return [
+      { key: 'http', label: 'HTTP', t: 'TCP', url: 'http://192.168.1.1' },
+      { key: 'https', label: 'HTTPS', t: 'TCP', url: 'https://news.test/today' },
+      { key: 'ws', label: 'WebSocket', t: 'TCP', url: 'ws://192.168.1.1/chat' },
+      { key: 'pop3', label: 'POP3', t: 'TCP', url: 'pop3://mail.test' },
+      { key: 'smtp', label: 'SMTP', t: 'TCP', url: 'smtp://mail.test' },
+      { key: 'dns', label: 'DNS', t: 'UDP', url: 'dns://192.168.1.1/news.test' },
+      { key: 'tcp', label: 'Raw', t: 'TCP', url: 'tcp://192.168.1.40:9000' },
+      { key: 'udp', label: 'Raw', t: 'UDP', url: 'udp://192.168.1.40:9000' }
+    ];
+  }
+
+  parse(raw) {
+    let s = (raw || '').trim();
+    if (!/^[a-z0-9]+:\/\//i.test(s)) s = 'http://' + s;
+    const m = s.match(/^([a-z0-9]+):\/\/([^\/:?#\s]+)(?::(\d{1,5}))?([^#\s]*)/i);
+    const SCH = { http: 'http', https: 'https', ws: 'ws', pop3: 'pop3', pop: 'pop3', smtp: 'smtp', dns: 'dns', tcp: 'tcp', udp: 'udp' };
+    const DEF = { http: 80, https: 443, ws: 80, pop3: 110, smtp: 25, dns: 53, tcp: 9000, udp: 9000 };
+    const key = SCH[m ? m[1].toLowerCase() : 'http'] || 'http';
+    const host = (m ? m[2] : '192.168.1.1').slice(0, 48);
+    let port = m && m[3] ? Math.min(65535, parseInt(m[3], 10)) : DEF[key];
+    if (!port) port = DEF[key];
+    let path = m && m[4] ? m[4] : '';
+    if (path && path[0] !== '/') path = '/' + path;
+    path = path.slice(0, 40);
+    return { key, https: key === 'https', host, port, defPort: DEF[key], path };
+  }
+
+  defaultText(u) {
+    if (u.key === 'http' || u.key === 'https') {
+      const hostHdr = u.host + (u.port !== u.defPort ? ':' + u.port : '');
+      return ['GET ' + (u.path || '/') + ' HTTP/1.1', 'Host: ' + hostHdr, 'User-Agent: PacketLab/1.0', 'Accept: text/html', 'Connection: keep-alive', '', ''].join('\n');
+    }
+    if (u.key === 'ws') return 'hello';
+    if (u.key === 'pop3') return 'RETR 1';
+    if (u.key === 'smtp') return 'MAIL FROM:<alice@home.test>';
+    if (u.key === 'dns') return ((u.path || '').slice(1) || 'news.test');
+    return 'ping';
+  }
+
+  buildApp(u, url, text, dnsType) {
+    const hex2 = (b) => this.hex2(b);
+    const textL6 = (plain, eolAt, cryptAbout) => [
+      { name: 'Encoding', value: 'ASCII', rel: plain.length ? [0, plain.length] : null, about: plain.length ? 'Each character becomes one byte: “' + String.fromCharCode(plain[0]) + '” → 0x' + hex2(plain[0]) + '.' : 'Nothing to encode.' },
+      { name: 'Line endings', value: 'CRLF', rel: eolAt >= 0 ? [eolAt, eolAt + 2] : null, about: 'Each line ends with CR LF (0x0D 0x0A).' },
+      { name: 'Compression', value: 'None', rel: null, sizeText: '—', about: 'Sent uncompressed.' },
+      { name: 'Encryption', value: 'None', rel: null, sizeText: '—', about: cryptAbout }
+    ];
+    const hs = { name: 'TCP handshake', detail: 'SYN · SYN-ACK · ACK', right: true, about: 'Three segments open the connection before any data flows.' };
+    const fin = { name: 'FIN', detail: '', right: true, about: 'Either side closes the connection.' };
+    const host = u.host;
+
+    if (u.key === 'http' || u.key === 'https') {
+      const HDR = {
+        host: 'The site you want. Several sites can share one IP address.',
+        'user-agent': 'Identifies the client software.',
+        accept: 'Content types the client accepts.',
+        'accept-encoding': 'Compression formats the client understands.',
+        'accept-language': 'Preferred languages.',
+        connection: 'Keep the connection open (keep-alive) or close it after the reply.',
+        'content-type': 'Format of the body.',
+        'content-length': 'Size of the body in bytes.',
+        cookie: 'State the server stored earlier, sent back on every request.',
+        authorization: 'Credentials. Readable on the wire unless the connection is encrypted.',
+        referer: 'The page that linked here.',
+        upgrade: 'Asks to switch to another protocol, such as WebSocket.'
+      };
+      const METHOD = { GET: 'Asks for a resource.', POST: 'Sends data to the server.', PUT: 'Replaces a resource.', PATCH: 'Partially updates a resource.', DELETE: 'Removes a resource.', HEAD: 'Like GET, but headers only.', OPTIONS: 'Asks what is allowed.' };
+      const enc = u.https ? ' Encrypted on the wire.' : '';
+      const lines = (text || '').replace(/\r\n/g, '\n').split('\n');
+      let plain = []; const f7 = []; let off = 0; let bodyStart = -1; let firstEol = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const l = lines[i]; const last = i === lines.length - 1;
+        const b = this.decode(l, false); const eol = last ? [] : [13, 10];
+        const len = b.length + eol.length;
+        if (!last && firstEol < 0) firstEol = b.length;
+        if (i > 0 && l === '' && !last) {
+          f7.push({ name: 'End of headers', value: '(empty line)', rel: u.https ? null : [off, off + len], sizeText: len + ' B', about: 'An empty line ends the headers.' + enc });
+          plain = plain.concat(eol); off += len; bodyStart = i + 1; break;
+        }
+        if (len === 0) continue;
+        let name; let about;
+        if (i === 0) {
+          const meth = l.split(' ')[0].toUpperCase();
+          name = 'Request line'; about = 'Method, path and version. ' + (METHOD[meth] || 'Unknown method; most servers would reject it.');
+        } else {
+          const ci = l.indexOf(':');
+          const hn = ci > 0 ? l.slice(0, ci).trim() : '';
+          name = hn || 'Header';
+          about = ci > 0 ? (HDR[hn.toLowerCase()] || 'A request header: name, colon, value.') : 'Not a valid header line (missing colon).';
+        }
+        f7.push({ name, value: l, rel: u.https ? null : [off, off + len], sizeText: len + ' B', about: about + enc });
+        plain = plain.concat(b, eol); off += len;
+      }
+      if (bodyStart >= 0) {
+        const bodyText = lines.slice(bodyStart).join('\n');
+        const bb = this.decode(bodyText, true);
+        if (bb.length) {
+          const cl = lines.slice(1, bodyStart).find((l) => /^content-length\s*:/i.test(l));
+          const clv = cl ? parseInt(cl.split(':')[1], 10) : null;
+          const note = clv === null ? ' No Content-Length header, so the server can’t tell where it ends.' : (clv === bb.length ? ' Matches Content-Length.' : ' Content-Length says ' + clv + ', but the body is ' + bb.length + ' bytes.');
+          f7.push({ name: 'Body', value: bodyText.split('\n')[0].slice(0, 60), rel: u.https ? null : [off, off + bb.length], sizeText: bb.length + ' B', about: 'The request body.' + note + enc });
+          plain = plain.concat(bb); off += bb.length;
+        }
+      }
+      const reqLine = (lines[0] || '').slice(0, 32) || 'Request';
+      const sess = [hs];
+      let payload = plain; let transform = null; let l6;
+      if (u.https) {
+        let seed = this.hash(url + text) || 1;
+        const rnd = () => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0; return seed & 255; };
+        const ctLen = plain.length + 1; const recLen = ctLen + 16;
+        const body = []; for (let i = 0; i < recLen; i++) body.push(rnd());
+        payload = [0x17, 0x03, 0x03, recLen >> 8, recLen & 255].concat(body);
+        transform = { label: 'Encrypted', bytes: payload.slice(5) };
+        const n = payload.length;
+        l6 = [
+          { name: 'Record type', value: '0x17', long: '0x17 · application data', rel: [0, 1], about: 'Encrypted application data follows.' },
+          { name: 'Version', value: '0x0303', rel: [1, 3], about: 'Fixed for compatibility. The real version is negotiated in the handshake.' },
+          { name: 'Length', value: String(recLen), long: recLen + ' bytes', rel: [3, 5], about: 'Number of encrypted bytes that follow.' },
+          { name: 'Ciphertext', value: ctLen + ' B', long: ctLen + ' bytes', rel: [5, n - 16], about: 'The HTTP request, encrypted. Only the server can read it.' },
+          { name: 'Auth tag', value: '16 B', long: '16 bytes', rel: [n - 16, n], about: 'Detects tampering. If any bit changes, decryption fails.' }
+        ];
+        sess.push({ name: 'TLS handshake', detail: 'ClientHello · ServerHello', right: true, about: 'Keys are agreed. Everything after this is encrypted.' });
+      } else {
+        l6 = textL6(plain, firstEol, 'Plain http:// is readable by anyone on the path. Try HTTPS.');
+        l6[0].value = 'UTF-8';
+      }
+      sess.push({ name: reqLine, detail: 'len=' + payload.length, right: true, current: true, about: 'This request, sent on the open connection.' });
+      sess.push({ name: 'Response', detail: '', right: false, about: 'The server replies on the same connection.' });
+      sess.push(fin);
+      return {
+        name: u.https ? 'HTTPS' : 'HTTP', transport: 'TCP', segLabel: 'HTTP', tls: u.https,
+        title: 'HTTP request', job: 'What the browser asks the server for.',
+        hint: 'Request line, headers, blank line, then an optional body. Newlines become CRLF.',
+        l6proto: u.https ? 'TLS' : 'UTF-8', l6title: u.https ? 'Encryption' : 'Encoding',
+        l6job: u.https ? 'The request is encrypted before it leaves the device.' : 'Text is encoded as bytes. Nothing is encrypted.',
+        plain, payload, transform, f7, l6, sess
+      };
+    }
+
+    if (u.key === 'ws') {
+      const msg = this.decode(text, false);
+      const key = [0x37, 0xfa, 0x21, 0x3d];
+      const masked = msg.map((b, i) => b ^ key[i % 4]);
+      const ext = msg.length > 125;
+      const head = ext ? [0x81, 0x80 | 126, msg.length >> 8, msg.length & 255] : [0x81, 0x80 | msg.length];
+      const payload = head.concat(key, masked);
+      const k0 = head.length; const d0 = k0 + 4;
+      const path = u.path || '/chat';
+      const f7 = [
+        { name: 'FIN + opcode', value: '1 · text', long: 'FIN=1 · opcode 0x1 (text)', rel: [0, 1], about: 'FIN marks the last fragment. Opcode 1 means a UTF-8 text message.' },
+        { name: 'Mask + length', value: ext ? 'masked · 126' : 'masked · ' + msg.length, long: ext ? 'MASK=1 · 126 (extended length follows)' : 'MASK=1 · length ' + msg.length, rel: [1, 2], about: 'Frames from the client must be masked. Lengths up to 125 fit here; 126 means a 2-byte length follows.' }
+      ];
+      if (ext) f7.push({ name: 'Extended length', value: String(msg.length), rel: [2, 4], about: 'The real payload length, for messages over 125 bytes.' });
+      f7.push({ name: 'Masking key', value: this.hexRange(key, 0, 4, 4), rel: [k0, d0], about: 'A random 4-byte key, new for every frame.' });
+      f7.push({ name: 'Payload', value: '"' + this.preview(msg, 40) + '"', long: '"' + this.preview(msg, 200) + '" (masked on the wire)', rel: msg.length ? [d0, d0 + msg.length] : null, sizeText: msg.length + ' B', about: 'The message, XORed with the masking key.' });
+      return {
+        name: 'WebSocket', transport: 'TCP', segLabel: 'WS frame', tls: false,
+        title: 'WebSocket frame', job: 'A message on a two-way channel that started as an HTTP request.',
+        hint: 'The text message to send in one frame.',
+        l6proto: 'UTF-8', l6title: 'Encoding & masking', l6job: 'The text is UTF-8, then XOR-masked with a random key.',
+        plain: msg, payload, transform: { label: 'Masked', bytes: masked }, f7,
+        l6: [
+          { name: 'Encoding', value: 'UTF-8', rel: msg.length ? [d0, d0 + msg.length] : null, about: msg.length ? 'Text payload encoded as UTF-8: “' + String.fromCharCode(msg[0]) + '” → 0x' + hex2(msg[0]) + '.' : 'Empty message.' },
+          { name: 'Masking', value: 'XOR with key', rel: msg.length ? [d0, d0 + msg.length] : null, about: 'Each byte is XORed with the key, so proxies never mistake it for HTTP.' },
+          { name: 'Compression', value: 'None', rel: null, sizeText: '—', about: 'An optional extension, off here.' },
+          { name: 'Encryption', value: 'None', rel: null, sizeText: '—', about: 'ws:// is unencrypted. wss:// adds TLS.' }
+        ],
+        sess: [
+          hs,
+          { name: 'GET ' + path + ' · Upgrade', detail: 'HTTP', right: true, about: 'Starts as HTTP, asking to switch protocols.' },
+          { name: '101 Switching Protocols', detail: 'HTTP', right: false, about: 'Server agrees. The connection is now a WebSocket.' },
+          { name: 'Text frame', detail: 'len=' + payload.length, right: true, current: true, about: 'This frame.' },
+          { name: 'Text frame', detail: 'reply', right: false, about: 'Either side can send at any time.' },
+          { name: 'Close frame', detail: 'opcode 0x8', right: true, about: 'Ends the WebSocket, then TCP closes.' }
+        ]
+      };
+    }
+
+    if (u.key === 'pop3' || u.key === 'smtp') {
+      const isPop = u.key === 'pop3';
+      const DICT = isPop ? {
+        USER: 'Names the mailbox to log in to.', PASS: 'Sends the password.', STAT: 'Asks for message count and mailbox size.', LIST: 'Lists messages and their sizes.',
+        RETR: 'Retrieves a message.', DELE: 'Marks a message for deletion.', TOP: 'Retrieves headers plus the first N lines.', UIDL: 'Asks for each message’s unique ID.',
+        NOOP: 'Does nothing; keeps the connection alive.', RSET: 'Undoes pending deletions.', QUIT: 'Ends the session and applies deletions.', CAPA: 'Lists server capabilities.'
+      } : {
+        HELO: 'Client introduces itself (old form).', EHLO: 'Client introduces itself and asks for extensions.', MAIL: 'Starts a message and names the sender.',
+        RCPT: 'Adds a recipient.', DATA: 'Message content follows, ending with a line holding a single dot.', QUIT: 'Ends the session.', RSET: 'Aborts the current message.',
+        NOOP: 'Does nothing.', VRFY: 'Asks whether a mailbox exists.', STARTTLS: 'Upgrades the connection to TLS.', AUTH: 'Starts authentication.'
+      };
+      const ls = (text || '').replace(/\r\n/g, '\n').split('\n');
+      if (ls.length > 1 && ls[ls.length - 1] === '') ls.pop();
+      const multi = ls.length > 1;
+      let plain = []; const f7 = []; let off = 0;
+      ls.forEach((l, i) => {
+        const b = this.decode(l, false);
+        const sp = l.indexOf(' ');
+        const cmd = sp < 0 ? l : l.slice(0, sp); const arg = sp < 0 ? '' : l.slice(sp + 1);
+        const cb = this.decode(cmd, false).length;
+        const C = cmd.toUpperCase();
+        const pre = multi ? 'Line ' + (i + 1) + ' · ' : '';
+        f7.push({ name: pre + 'Command', value: cmd || '(empty)', rel: cb ? [off, off + cb] : null, sizeText: cb + ' B', about: DICT[C] || 'Not a standard command. The server would reply with an error.' });
+        if (arg) f7.push({ name: pre + 'Argument', value: arg, rel: [off + cb + 1, off + b.length], about: C === 'PASS' ? 'The password, readable by anyone on the path.' : 'Argument to ' + C + '.' });
+        f7.push({ name: pre + 'Terminator', value: 'CRLF', rel: [off + b.length, off + b.length + 2], about: 'Every command ends with CR LF (0x0D 0x0A).' });
+        plain = plain.concat(b, [13, 10]); off += b.length + 2;
+      });
+      const first = (ls[0] || '').slice(0, 32) || 'Command';
+      const eolAt = ls.length ? this.decode(ls[0], false).length : -1;
+      const sess = isPop ? [
+        hs,
+        { name: '+OK POP3 ready', detail: 'greeting', right: false, about: 'The server speaks first.' },
+        { name: 'USER · PASS', detail: 'login', right: true, about: 'Log in. The password crosses the network as plain text.' },
+        { name: '+OK logged in', detail: '', right: false, about: 'Authenticated.' },
+        { name: first, detail: 'len=' + plain.length, right: true, current: true, about: 'Your command(s).' },
+        { name: '+OK / -ERR', detail: '', right: false, about: 'Every reply starts with +OK or -ERR.' },
+        { name: 'QUIT', detail: '', right: true, about: 'End the session.' }
+      ] : [
+        hs,
+        { name: '220 ' + host + ' ready', detail: 'greeting', right: false, about: 'The server speaks first.' },
+        { name: 'EHLO home.test', detail: '', right: true, about: 'Client introduces itself.' },
+        { name: '250 OK', detail: '', right: false, about: 'Server lists what it supports.' },
+        { name: first, detail: 'len=' + plain.length, right: true, current: true, about: 'Your command(s).' },
+        { name: '250 / 5xx', detail: '', right: false, about: 'A 3-digit code: 2xx success, 4xx try later, 5xx failure.' },
+        { name: 'QUIT', detail: '', right: true, about: 'End the session.' }
+      ];
+      return {
+        name: isPop ? 'POP3' : 'SMTP', transport: 'TCP', segLabel: isPop ? 'POP3' : 'SMTP', tls: false,
+        title: isPop ? 'POP3 command' : 'SMTP command',
+        job: isPop ? 'Fetches email from a mailbox, one text command per line.' : 'Hands outgoing email to a mail server, one command at a time.',
+        hint: isPop ? 'One command per line, e.g. USER alice, LIST, RETR 2, QUIT.' : 'One command per line, e.g. EHLO home.test, RCPT TO:<bob@mail.test>, DATA.',
+        l6proto: 'ASCII', l6title: 'Encoding', l6job: 'Plain ASCII text. Nothing is encrypted.',
+        plain, payload: plain, transform: null, f7,
+        l6: textL6(plain, eolAt, isPop ? 'Plain POP3 sends even your password as readable text. Port 995 adds TLS.' : 'Plain SMTP is readable on the path. STARTTLS upgrades the connection.'),
+        sess
+      };
+    }
+
+    if (u.key === 'dns') {
+      const TYPES = { A: [1, 'IPv4 address'], AAAA: [28, 'IPv6 address'], MX: [15, 'mail server'], TXT: [16, 'text record'] };
+      const ty = TYPES[dnsType] ? dnsType : 'A';
+      const name = (text || '').trim().replace(/[^a-z0-9.-]/gi, '').slice(0, 60) || 'news.test';
+      const labels = name.split('.').filter(Boolean);
+      let qname = [];
+      labels.forEach((l) => { const b = this.utf8(l).slice(0, 63); qname.push(b.length); qname = qname.concat(b); });
+      qname.push(0);
+      const code = TYPES[ty][0];
+      const payload = [0x3f, 0x2a, 0x01, 0x00, 0, 1, 0, 0, 0, 0, 0, 0].concat(qname, [code >> 8, code & 255, 0, 1]);
+      const q0 = 12, q1 = 12 + qname.length;
+      const spelled = labels.map((l) => l.length + ' ' + l).join(' ') + ' 0';
+      return {
+        name: 'DNS', transport: 'UDP', segLabel: 'DNS', tls: false,
+        title: 'DNS query', job: 'Asks a resolver for a record behind a name.',
+        hint: 'The name to look up. Pick a record type on the right.',
+        l6proto: 'Binary', l6title: 'Encoding', l6job: 'Fixed binary fields. Names are length-prefixed labels.',
+        plain: qname, payload, transform: null,
+        f7: [
+          { name: 'Transaction ID', value: '0x3F2A', rel: [0, 2], about: 'Matches the reply to this query.' },
+          { name: 'Flags', value: '0x0100', long: '0x0100 · query, recursion desired', rel: [2, 4], about: 'A standard query asking the resolver to find the full answer.' },
+          { name: 'Questions', value: '1', rel: [4, 6], about: 'One question follows.' },
+          { name: 'Other counts', value: '0 · 0 · 0', rel: [6, 12], about: 'Answer, authority and extra records. Empty in a query.' },
+          { name: 'Name', value: name, long: spelled, rel: [q0, q1], about: 'Each label is prefixed by its length. A zero byte ends the name.' },
+          { name: 'Type', value: ty, long: code + ' (' + ty + ' · ' + TYPES[ty][1] + ')', rel: [q1, q1 + 2], about: 'Asking for the ' + TYPES[ty][1] + '.' },
+          { name: 'Class', value: 'IN', long: '1 (Internet)', rel: [q1 + 2, q1 + 4], about: 'Internet class. Almost always 1.' }
+        ],
+        l6: [
+          { name: 'Encoding', value: 'Binary', rel: [0, payload.length], about: 'Fixed-size binary fields, not text.' },
+          { name: 'Name format', value: 'Length-prefixed labels', rel: [q0, q1], about: '“' + name + '” is sent as ' + spelled + '.' },
+          { name: 'Encryption', value: 'None', rel: null, sizeText: '—', about: 'Anyone on the path can see which names you look up. DoH and DoT encrypt it.' }
+        ],
+        sess: [
+          { name: 'Query ' + name + ' ' + ty, detail: 'len=' + payload.length, right: true, current: true, about: 'No handshake. UDP just sends.' },
+          { name: 'Response', detail: ty + ' record', right: false, about: 'The answer, if it arrives. UDP never retries; the app must.' }
+        ]
+      };
+    }
+
+    // Raw TCP / UDP
+    const isUdp = u.key === 'udp';
+    const data = this.decode(text, false);
+    return {
+      name: isUdp ? 'Raw UDP' : 'Raw TCP', transport: isUdp ? 'UDP' : 'TCP', segLabel: 'Data', tls: false,
+      portAbout: 'Port ' + u.port + ': whichever program is listening on it.',
+      title: 'Raw payload', job: 'Your own bytes, sent as-is. No application protocol.',
+      hint: 'Any bytes you like.',
+      l6proto: 'Raw', l6title: 'No encoding', l6job: 'Bytes go out exactly as typed. The receiving program decides what they mean.',
+      plain: data, payload: data, transform: null,
+      f7: [{ name: 'Payload', value: this.preview(data, 60) || '(empty)', long: this.preview(data, 300) || '(empty)', rel: data.length ? [0, data.length] : null, sizeText: data.length + ' B', about: 'Your bytes, exactly as typed.' }],
+      l6: [
+        { name: 'Encoding', value: 'Raw bytes', rel: data.length ? [0, data.length] : null, about: 'No format. Non-printable bytes show as · in the text column.' },
+        { name: 'Encryption', value: 'None', rel: null, sizeText: '—', about: 'Readable by anyone on the path.' }
+      ],
+      sess: isUdp
+        ? [{ name: 'Datagram', detail: 'len=' + data.length, right: true, current: true, about: 'Sent once. No reply is guaranteed.' }]
+        : [hs, { name: 'Data', detail: 'len=' + data.length, right: true, current: true, about: 'Your bytes on the open connection.' }, { name: 'ACK', detail: '', right: false, about: 'The receiver confirms the bytes arrived.' }, fin]
+    };
+  }
+
+  model(url, text, dnsType) {
+    const cacheKey = url + '\u0001' + text + '\u0001' + dnsType;
+    if (this._key === cacheKey && this._model) return this._model;
+    const u = this.parse(url);
+    const app = this.buildApp(u, url, text, dnsType);
+    if (!app.f7.length) app.f7.push({ name: 'Payload', value: '(empty)', rel: null, sizeText: '0 B', about: 'Nothing to send.' });
+    const isUdp = app.transport === 'UDP';
+    const srcIp = [192, 168, 1, 23];
+    const srcMac = [0xa4, 0x83, 0xe7, 0x2c, 0x19, 0x5b];
+    const routerMac = [0x3c, 0x84, 0x6a, 0x91, 0x0e, 0x22];
+    const ipS = (a) => a.join('.');
+    let dstIp; let viaDns = false;
+    const ipm = u.host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (ipm && ipm.slice(1).every((x) => +x <= 255)) dstIp = ipm.slice(1).map(Number);
+    else { viaDns = true; dstIp = [203, 0, 113, 10 + (this.hash(u.host) % 240)]; }
+    const local = dstIp[0] === 192 && dstIp[1] === 168 && dstIp[2] === 1;
+    const kind = !local ? 'remote' : (dstIp[3] === 1 ? 'router' : 'lan');
+    const dstMac = kind === 'lan' ? [0xb8, 0x27, 0xeb, 0x4a, 0x10, dstIp[3]] : routerMac;
+    const payload = app.payload;
+
+    const be16 = (v) => [(v >> 8) & 255, v & 255];
+    const be32 = (v) => [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+    const sport = isUdp ? 51515 : 52814; const dport = u.port; const seq = 1804289383; const ack = 846930886;
+    let l4;
+    if (isUdp) {
+      const ul = 8 + payload.length;
+      l4 = [].concat(be16(sport), be16(dport), be16(ul), [0, 0]);
+      const c = this.csum([].concat(srcIp, dstIp, [0, 17], be16(ul), l4, payload)) || 0xFFFF;
+      l4[6] = c >> 8; l4[7] = c & 255;
+    } else {
+      l4 = [].concat(be16(sport), be16(dport), be32(seq), be32(ack), [0x50, 0x18], be16(64240), [0, 0], [0, 0]);
+      const c = this.csum([].concat(srcIp, dstIp, [0, 6], be16(20 + payload.length), l4, payload));
+      l4[16] = c >> 8; l4[17] = c & 255;
+    }
+    const T = l4.length;
+    const l4Len = T + payload.length;
+    const totalLen = 20 + l4Len;
+    const ip = [0x45, 0x00].concat(be16(totalLen), [0x1c, 0x46, 0x40, 0x00, 64, isUdp ? 17 : 6, 0, 0], srcIp, dstIp);
+    const ics = this.csum(ip); ip[10] = ics >> 8; ip[11] = ics & 255;
+    const padLen = Math.max(0, 46 - totalLen);
+    const eth = [].concat(dstMac, srcMac, [0x08, 0x00], ip, l4, payload, new Array(padLen).fill(0));
+    const crc = this.crc32(eth);
+    const fcs = [crc & 255, (crc >>> 8) & 255, (crc >>> 16) & 255, (crc >>> 24) & 255];
+    const frame = [0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0xD5].concat(eth, fcs);
+    const E = frame.length; const FE = E - 4; const P0 = 42 + T; const PE = FE - padLen;
+    const hx = (a, b) => this.hexRange(frame, a, b, 8);
+    const abs = (r) => (r ? [P0 + r[0], P0 + r[1]] : null);
+    const host = u.host;
+
+    const F = {};
+    F[7] = app.f7.map((f, i) => Object.assign({ id: 'a' + i }, f, { range: abs(f.rel) }));
+    F[6] = app.l6.map((f, i) => Object.assign({ id: 'p' + i }, f, { range: abs(f.rel) }));
+    F[5] = app.sess.map((x, i) => Object.assign({ id: 's' + i, value: x.name, long: (x.name + '  ' + x.detail).trim(), sizeText: x.current ? payload.length + ' B' : '—' }, x, x.current && payload.length ? { range: [P0, PE], payload: true } : {}));
+
+    const portAbout = app.portAbout || ('Port ' + dport + ' is ' + app.name + '. It selects the program on the server.');
+    const plRange = payload.length ? [P0, PE] : null;
+    if (isUdp) {
+      F[4] = [
+        { id: 'sp', name: 'Source port', short: 'Source port', bits: 16, value: String(sport), range: [42, 44], about: 'Temporary port chosen by your OS. The reply comes back here.' },
+        { id: 'dp', name: 'Destination port', short: 'Destination port', bits: 16, value: String(dport), range: [44, 46], about: portAbout },
+        { id: 'ln', name: 'Length', short: 'Length', bits: 16, value: String(l4Len), range: [46, 48], about: 'UDP header plus data, in bytes.' },
+        { id: 'ck', name: 'Checksum', short: 'Checksum', bits: 16, value: '0x' + this.hex2(l4[6]) + this.hex2(l4[7]), range: [48, 50], about: 'Detects corruption. That is all UDP checks.' },
+        { id: 'pl', name: 'Payload', bits: 0, value: payload.length + ' B', range: plRange, payload: true, about: 'Data from the layers above.' }
+      ];
+    } else {
+      F[4] = [
+        { id: 'sp', name: 'Source port', short: 'Source port', bits: 16, value: String(sport), range: [42, 44], about: 'Temporary port chosen by your OS for this connection.' },
+        { id: 'dp', name: 'Destination port', short: 'Destination port', bits: 16, value: String(dport), range: [44, 46], about: portAbout },
+        { id: 'sq', name: 'Sequence number', short: 'Sequence number', bits: 32, value: String(seq), range: [46, 50], about: 'Position of this segment’s first byte in the stream.' },
+        { id: 'ak', name: 'Acknowledgment number', short: 'Acknowledgment number', bits: 32, value: String(ack), range: [50, 54], about: 'Next byte expected from the server.' },
+        { id: 'do', name: 'Data offset', short: 'Offset', bits: 4, value: '5', long: '5 (20 bytes)', range: [54, 55], about: 'Header length in 32-bit words.' },
+        { id: 'rs', name: 'Reserved', short: 'Rsvd', bits: 4, value: '0', range: [54, 55], about: 'Unused, always zero.' },
+        { id: 'fl', name: 'Flags', short: 'Flags', bits: 8, value: 'PSH ACK', long: 'PSH ACK (0x18)', range: [55, 56], about: 'ACK: acknowledgment is valid. PSH: deliver immediately.' },
+        { id: 'wn', name: 'Window', short: 'Window', bits: 16, value: '64240', range: [56, 58], about: 'Bytes the receiver can accept before the sender must wait.' },
+        { id: 'ck', name: 'Checksum', short: 'Checksum', bits: 16, value: '0x' + this.hex2(l4[16]) + this.hex2(l4[17]), range: [58, 60], about: 'Detects corruption in header and data.' },
+        { id: 'ug', name: 'Urgent pointer', short: 'Urgent pointer', bits: 16, value: '0', range: [60, 62], about: 'Unused unless the URG flag is set.' },
+        { id: 'pl', name: 'Payload', bits: 0, value: payload.length + ' B', range: plRange, payload: true, about: 'Data from the layers above.' }
+      ];
+    }
+
+    F[3] = [
+      { id: 'v', name: 'Version', short: 'Version', bits: 4, value: '4', range: [22, 23], about: 'IP version 4.' },
+      { id: 'ihl', name: 'Header length', short: 'IHL', bits: 4, value: '5', long: '5 (20 bytes)', range: [22, 23], about: 'Header length in 32-bit words.' },
+      { id: 'tos', name: 'DSCP / ECN', short: 'DSCP / ECN', bits: 8, value: '0x00', range: [23, 24], about: 'Priority and congestion signals. 0 is normal traffic.' },
+      { id: 'tl', name: 'Total length', short: 'Total length', bits: 16, value: String(totalLen), range: [24, 26], about: 'Header plus payload, in bytes.' },
+      { id: 'id', name: 'Identification', short: 'Identification', bits: 16, value: '0x1C46', range: [26, 28], about: 'Groups fragments of the same packet.' },
+      { id: 'ff', name: 'Flags', short: 'Flags', bits: 3, value: 'DF', long: 'DF (Don’t Fragment)', range: [28, 29], about: 'Routers must not split this packet.' },
+      { id: 'fo', name: 'Fragment offset', short: 'Fragment offset', bits: 13, value: '0', range: [28, 30], about: 'Position of this fragment. 0 means not fragmented.' },
+      { id: 'ttl', name: 'Time to live', short: 'TTL', bits: 8, value: '64', range: [30, 31], about: 'Each router subtracts 1. At 0 the packet is dropped.' },
+      { id: 'pr', name: 'Protocol', short: 'Protocol', bits: 8, value: isUdp ? '17' : '6', long: isUdp ? '17 (UDP)' : '6 (TCP)', range: [31, 32], about: '6 = TCP, 17 = UDP, 1 = ICMP.' },
+      { id: 'hc', name: 'Header checksum', short: 'Header checksum', bits: 16, value: '0x' + this.hex2(ip[10]) + this.hex2(ip[11]), range: [32, 34], about: 'Detects corruption in the IP header.' },
+      { id: 'src', name: 'Source address', short: 'Source address', bits: 32, value: ipS(srcIp), range: [34, 38], about: 'Your device’s address on the local network.' },
+      { id: 'dst', name: 'Destination address', short: 'Destination address', bits: 32, value: ipS(dstIp), range: [38, 42], about: (kind === 'remote' ? 'The server’s address. Unchanged across every hop.' : 'The destination on your local network.') + (viaDns ? ' Resolved via DNS (example address).' : '') },
+      { id: 'pl', name: 'Payload', bits: 0, value: l4Len + ' B', range: [42, PE], payload: true, about: isUdp ? 'The UDP datagram.' : 'The TCP segment.' }
+    ];
+
+    const dmAbout = {
+      router: 'Your router’s network card, found via ARP.',
+      lan: 'The device’s network card, found via ARP.',
+      remote: 'Your router’s MAC, not the server’s. Ethernet only reaches the next hop.'
+    }[kind];
+    F[2] = [
+      { id: 'dm', name: 'Destination MAC', short: 'Destination', weight: 6, value: this.macStr(dstMac), range: [8, 14], about: dmAbout },
+      { id: 'sm', name: 'Source MAC', short: 'Source', weight: 6, value: this.macStr(srcMac), range: [14, 20], about: 'Your network card.' },
+      { id: 'et', name: 'EtherType', short: 'Type', weight: 3, value: '0x0800', long: '0x0800 (IPv4)', range: [20, 22], about: 'Protocol of the payload. 0x0800 is IPv4.' },
+      { id: 'pl', name: 'Payload', short: 'Payload', weight: 8, value: totalLen + ' B', range: [22, PE], payload: true, about: 'The IP packet.' }
+    ];
+    if (padLen) F[2].push({ id: 'pad', name: 'Padding', short: 'Pad', weight: 3, value: padLen + ' B', range: [PE, FE], about: 'Zeros added because Ethernet needs at least 46 bytes of payload.' });
+    F[2].push({ id: 'fcs', name: 'Frame check sequence', short: 'FCS', weight: 4, value: hx(FE, E), range: [FE, E], about: 'CRC-32 checksum. Corrupt frames are dropped.' });
+
+    F[1] = [
+      { id: 'pre', name: 'Preamble', value: '10101010 × 7', range: [0, 7], wave: [0x55, 0x55], about: 'Alternating bits that let the receiver sync its clock.' },
+      { id: 'sfd', name: 'SFD', value: '10101011', range: [7, 8], wave: [0x55, 0xD5], about: 'Start frame delimiter. Ends in 11 to mark the start of the frame.' },
+      { id: 'dat', name: 'Data', value: hx(8, 10), range: [8, 10], wave: [frame[8], frame[9]], about: 'First bytes of the frame, sent least significant bit first.' },
+      { id: 'code', name: 'Line code', value: '', range: [22, 24], wave: [frame[22], frame[23]], about: '' }
+    ];
+
+    const owner = new Array(E).fill(null);
+    [7, 6, 5, 4, 3, 2, 1].forEach((n) => {
+      F[n].forEach((f, i) => {
+        if (!f.range || f.payload || (n === 1 && f.id !== 'pre' && f.id !== 'sfd')) return;
+        for (let k = f.range[0]; k < f.range[1]; k++) if (!owner[k]) owner[k] = { layer: n, field: i };
+      });
+    });
+    const dataLayer = app.tls ? 6 : 7;
+    const byteLayer = frame.map((_, i) => (i < 8 ? 1 : i < 22 ? 2 : i < 42 ? 3 : i < P0 ? 4 : i < PE ? dataLayer : 2));
+    const pdu = { 1: [0, E], 2: [8, E], 3: [22, PE], 4: [42, PE], 5: [P0, PE], 6: [P0, PE], 7: [P0, PE] };
+
+    const segs = [
+      { label: 'Preamble', layer: 1, vis: 1, a: 0, b: 8 },
+      { label: 'Ethernet', layer: 2, vis: 2, a: 8, b: 22 },
+      { label: 'IP', layer: 3, vis: 3, a: 22, b: 42 },
+      { label: app.transport, layer: 4, vis: 4, a: 42, b: P0 }
+    ];
+    if (app.tls) {
+      segs.push({ label: 'TLS', layer: 6, vis: 6, a: P0, b: P0 + 5 });
+      segs.push({ label: 'Encrypted data', layer: 6, vis: 7, a: P0 + 5, b: PE });
+    } else {
+      segs.push({ label: app.segLabel, layer: 7, vis: 7, a: P0, b: PE });
+    }
+    if (padLen) segs.push({ label: 'Pad', layer: 2, vis: 2, a: PE, b: FE });
+    segs.push({ label: 'FCS', layer: 2, vis: 2, a: FE, b: E });
+
+    const pduCaption = {
+      7: app.plain.length + ' B data',
+      6: app.tls ? '5 B header + ' + (payload.length - 5) + ' B encrypted' : 'no bytes added',
+      5: isUdp ? 'no connection · no bytes added' : 'no bytes added',
+      4: T + ' B header + ' + payload.length + ' B = ' + l4Len + ' B',
+      3: '20 B header + ' + l4Len + ' B = ' + totalLen + ' B',
+      2: '14 B header + ' + totalLen + ' B' + (padLen ? ' + ' + padLen + ' B pad' : '') + ' + 4 B FCS = ' + (E - 8) + ' B',
+      1: E + ' B = ' + (E * 8).toLocaleString('en-US') + ' bits'
+    };
+
+    const layers = {
+      7: { name: 'Application', proto: app.name, pdu: 'Data', added: (app.tls ? app.plain.length : payload.length) + ' B', title: app.title, job: app.job },
+      6: { name: 'Presentation', proto: app.l6proto, pdu: 'Data', added: app.tls ? '+' + (payload.length - app.plain.length) + ' B' : '+0 B', title: app.l6title, job: app.l6job },
+      5: isUdp
+        ? { name: 'Session', proto: 'None', pdu: 'Data', added: '+0 B', title: 'No connection', job: 'UDP has no session. Each datagram stands alone.' }
+        : { name: 'Session', proto: 'Socket', pdu: 'Data', added: '+0 B', title: 'Connection', job: 'Opens and maintains the conversation between client and server.' },
+      4: isUdp
+        ? { name: 'Transport', proto: 'UDP', pdu: 'Datagram', added: '+8 B', title: 'UDP datagram', job: 'Delivers datagrams to the right program. No handshake, no ordering, no retries.' }
+        : { name: 'Transport', proto: 'TCP', pdu: 'Segment', added: '+20 B', title: 'TCP segment', job: 'Delivers bytes reliably, in order, to the right program.' },
+      3: { name: 'Network', proto: 'IPv4', pdu: 'Packet', added: '+20 B', title: 'IP packet', job: 'Addresses the packet so routers can forward it.' },
+      2: { name: 'Data Link', proto: 'Ethernet', pdu: 'Frame', added: '+' + (18 + padLen) + ' B', title: 'Ethernet frame', job: 'Moves the frame across one link to the next device.' },
+      1: { name: 'Physical', proto: '10BASE-T', pdu: 'Bits', added: '+8 B', title: 'Signal', job: 'Turns bits into electrical signals on the cable.' }
+    };
+
+    const hops = kind === 'remote'
+      ? [
+        { title: 'Your device', mac: this.macStr(srcMac), hasLink: true, linkLabel: 'this frame', solid: true },
+        { title: 'Router', mac: this.macStr(routerMac), hasLink: true, linkLabel: 'new frame per hop', solid: false },
+        { title: host, mac: '—', hasLink: false }
+      ]
+      : [
+        { title: 'Your device', mac: this.macStr(srcMac), hasLink: true, linkLabel: 'this frame', solid: true },
+        { title: kind === 'router' ? 'Router' : host, mac: this.macStr(dstMac), hasLink: false }
+      ];
+
+    const sock = { client: ipS(srcIp) + ':' + sport, server: ipS(dstIp) + ':' + dport };
+    const summary = [
+      { k: 'Protocol', v: app.name + (app.name.indexOf('Raw') === 0 ? '' : ' over ' + app.transport) },
+      { k: 'Destination', v: ipS(dstIp) + ':' + dport },
+      { k: 'Next hop', v: this.macStr(dstMac) },
+      { k: 'App data', v: app.plain.length + ' B' },
+      { k: 'On the wire', v: E + ' B' },
+      { k: 'Overhead', v: Math.round(((E - app.plain.length) / E) * 100) + '%' }
+    ];
+
+    this._model = { u, app, F, frame, E, P0, PE, payload, owner, byteLayer, pdu, segs, pduCaption, layers, hops, sock, summary };
+    this._key = cacheKey;
+    return this._model;
+  }
+
+  current() {
+    const s = this.state;
+    const u = this.parse(s.url);
+    const custom = s.payloads[u.key];
+    const text = custom !== undefined && custom !== null ? custom : this.defaultText(u);
+    return { u, text, custom: custom !== undefined && custom !== null, m: this.model(s.url, text, s.dnsType) };
+  }
+
+  pick(layer, field) { this.stopTimer(); this.setState({ layer, field, playing: false }); }
+
+  send() {
+    if (this.state.playing) { this.stopTimer(); this.setState({ playing: false }); return; }
+    const order = this.state.dir === 'send' ? [7, 6, 5, 4, 3, 2, 1] : [1, 2, 3, 4, 5, 6, 7];
+    this.stopTimer();
+    this.setState({ url: (this.state.draft || '').trim() || 'http://192.168.1.1', playing: true, step: 0, layer: order[0], field: 0 });
+    this._timer = setInterval(() => {
+      const st = this.state.step + 1;
+      if (st >= order.length) { this.stopTimer(); this.setState({ playing: false }); return; }
+      this.setState({ step: st, layer: order[st], field: 0 });
+    }, 1200);
+  }
+
+  step(delta) {
+    const m = this.current().m;
+    let L = this.state.layer;
+    let i = Math.min(this.state.field, m.F[L].length - 1) + delta;
+    if (i >= m.F[L].length) { L = L === 1 ? 7 : L - 1; i = 0; }
+    else if (i < 0) { L = L === 7 ? 1 : L + 1; i = m.F[L].length - 1; }
+    this.pick(L, i);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const cur0 = this.current();
+    const m = cur0.m;
+    const L = s.layer;
+    const fields = m.F[L];
+    const fi = Math.max(0, Math.min(s.field, fields.length - 1));
+    const A = '#F2A541';
+    const B = '#8FBFA0';
+    const DARK = '#0A0A0A';
+
+    const ENC = {
+      manchester: { label: 'Manchester', legend: 'Manchester: rising edge mid-bit = 1, falling = 0.', about: 'A transition in every bit lets the receiver recover the clock.' },
+      nrz: { label: 'NRZ', legend: 'NRZ: high = 1, low = 0.', about: 'Simple, but long runs of the same bit are hard to count.' },
+      mlt3: { label: 'MLT-3', legend: 'MLT-3: each 1 steps through 0, +, 0, −. Each 0 holds.', about: 'Fewer transitions, lower frequency. Used by 100BASE-TX.' }
+    };
+    let f = fields[fi];
+    if (L === 1 && f.id === 'code') f = Object.assign({}, f, { value: ENC[s.enc].label, about: ENC[s.enc].about });
+    const sel = f.range;
+
+    const row = (n, first) => {
+      const meta = m.layers[n]; const on = n === L;
+      return {
+        n, name: meta.name, proto: meta.proto, pdu: meta.pdu, added: meta.added,
+        bg: on ? '#151515' : 'transparent', divider: first ? 'transparent' : '#181818',
+        nameColor: on ? '#FFFFFF' : '#BDBDBD', numColor: on ? A : '#5C5C5C',
+        tagColor: on ? A : B, tagBorder: on ? '#5A4422' : '#2B3A31',
+        current: on ? 'true' : 'false', live: s.playing && on,
+        pick: () => this.pick(n, 0)
+      };
+    };
+    const groups = [
+      { label: 'Application', range: '7–5', rows: [7, 6, 5] },
+      { label: 'Transport', range: '4', rows: [4] },
+      { label: 'Internet', range: '3', rows: [3] },
+      { label: 'Link', range: '2–1', rows: [2, 1] }
+    ].map((g) => ({ label: g.label, range: 'L' + g.range, rows: g.rows.map((n, i) => row(n, i === 0)) }));
+
+    const pr = m.pdu[L];
+    const segs = m.segs.map((g) => {
+      const vis = !s.playing || g.vis >= L;
+      const own = g.layer === L;
+      const inPdu = g.a >= pr[0] && g.b <= pr[1];
+      const bytes = g.b - g.a;
+      return {
+        label: g.label, bytes, aria: g.label + ', ' + bytes + ' bytes',
+        grow: vis ? Math.max(bytes, 14) : 0, minw: vis ? 52 : 0, op: vis ? 1 : 0,
+        bg: own ? A : (inPdu ? '#111814' : '#111111'),
+        fg: own ? DARK : (inPdu ? B : '#5C5C5C'),
+        border: own ? A : (inPdu ? '#2B3A31' : '#1C1C1C'),
+        pick: () => this.pick(g.layer, 0)
+      };
+    });
+    const miniSegs = m.segs.map((g) => {
+      const own = g.layer === L;
+      const inPdu = g.a >= pr[0] && g.b <= pr[1];
+      return { grow: Math.max(g.b - g.a, 4), bg: own ? A : (inPdu ? '#3D5245' : '#222222') };
+    });
+
+    const fieldList = fields.map((x, i) => {
+      const on = i === fi;
+      const rb = x.range ? x.range[1] - x.range[0] : 0;
+      return Object.assign({}, x, {
+        size: x.sizeText || (rb ? rb + ' B' : ''),
+        pick: () => this.pick(L, i),
+        border: on ? '#5A4422' : 'transparent',
+        tint: on ? '#17130C' : 'transparent',
+        text: on ? '#FFFFFF' : '#A6A6A6',
+        pillBg: on ? A : 'transparent', pillFg: on ? DARK : '#A6A6A6', pillBorder: on ? A : '#2A2A2A',
+        cellBg: on ? A : (x.payload ? '#111814' : '#121212'),
+        cellFg: on ? DARK : (x.payload ? B : '#ECECEC'),
+        cellBorder: on ? A : (x.payload ? '#2B3A31' : '#262626'),
+        right: !!x.right, left: x.right === false, justify: x.right === false ? 'flex-end' : 'flex-start',
+        line: x.current ? B : (on ? A : '#3A3A3A'),
+        weight: x.weight || 1
+      });
+    });
+
+    const gridFields = fieldList.filter((x) => x.bits);
+    const gpIdx = fields.findIndex((x) => x.payload);
+    const gp = gpIdx >= 0 ? fieldList[gpIdx] : null;
+    const gpOn = gpIdx === fi;
+    const gridPayload = gp ? { name: gp.name, value: gp.value, pick: gp.pick, bg: gpOn ? A : '#111814', fg: gpOn ? DARK : B, border: gpOn ? A : '#3D5245' } : { name: '', value: '', pick: () => {}, bg: 'transparent', fg: B, border: '#3D5245' };
+
+    const plain = m.app.plain;
+    const tr = m.app.transform;
+    const chars = [];
+    for (let i = 0; i < Math.min(12, plain.length); i++) {
+      const b = plain[i];
+      const ch = b === 32 ? '␣' : b === 13 ? 'CR' : b === 10 ? 'LF' : (b > 32 && b < 127 ? String.fromCharCode(b) : '·');
+      const bin = b.toString(2).padStart(8, '0');
+      chars.push({ ch, hex: this.hex2(b), bin: bin.slice(0, 4) + '\n' + bin.slice(4), enc: tr ? this.hex2(tr.bytes[i]) : '' });
+    }
+
+    const wsrc = (m.F[1][L === 1 ? fi : 0] || m.F[1][0]).wave;
+    const bits = [];
+    wsrc.forEach((b) => { for (let k = 0; k < 8; k++) bits.push((b >> k) & 1); });
+    const HI = 36, LO = 164, MID = 100, BW = 52, SL = 5;
+    const lv = [];
+    if (s.enc === 'manchester') bits.forEach((b) => { lv.push(b ? LO : HI, b ? HI : LO); });
+    else if (s.enc === 'nrz') bits.forEach((b) => { lv.push(b ? HI : LO, b ? HI : LO); });
+    else { const cyc = [MID, HI, MID, LO]; let ci = 0; bits.forEach((b) => { if (b) ci = (ci + 1) % 4; lv.push(cyc[ci], cyc[ci]); }); }
+    const pts = [[0, lv[0]]]; let cy = lv[0];
+    lv.forEach((y, k) => { const xs = k * (BW / 2); if (y !== cy) { pts.push([xs, cy]); pts.push([xs + SL, y]); cy = y; } });
+    pts.push([BW * 16, cy]);
+    const wavePath = 'M' + pts.map((p) => p[0] + ' ' + p[1]).join(' L');
+    let gridPath = '';
+    for (let i = 1; i < 16; i++) gridPath += 'M' + i * BW + ' 0 V200 ';
+    const waveBits = bits.map((b) => ({ b: String(b), color: b ? '#ECECEC' : '#5C5C5C' }));
+
+    const hexRows = [];
+    for (let r = 0; r < m.E; r += 16) {
+      const bytes = []; let ascii = '';
+      for (let i = r; i < Math.min(r + 16, m.E); i++) {
+        const b = m.frame[i];
+        const inSel = sel && i >= sel[0] && i < sel[1];
+        const inP = i >= pr[0] && i < pr[1];
+        const idx = i;
+        bytes.push({
+          hex: this.hex2(b), ml: (i - r) === 8 ? 8 : 0,
+          bg: inSel ? A : 'transparent', fg: inSel ? DARK : (inP ? '#CFCFCF' : '#474747'),
+          aria: 'Byte ' + i + ', 0x' + this.hex2(b),
+          pick: () => { const o = m.owner[idx]; if (o) this.pick(o.layer, o.field); else this.pick(m.byteLayer[idx], 0); }
+        });
+        ascii += (b >= 32 && b < 127) ? String.fromCharCode(b) : '·';
+      }
+      hexRows.push({ off: r.toString(16).padStart(4, '0'), bytes, ascii });
+    }
+
+    const meta = m.layers[L];
+    const nb = sel ? sel[1] - sel[0] : 0;
+    let size = f.sizeText || (nb ? nb + ' B' : '—');
+    if (f.bits && (f.bits % 8 !== 0)) size = f.bits + ' bits';
+    const exp = {
+      eyebrow: 'Layer ' + L + ' · ' + meta.name,
+      pos: (fi + 1) + ' / ' + fields.length,
+      name: f.name,
+      value: f.long || f.value,
+      size,
+      where: sel ? (nb === 1 ? String(sel[0]) : sel[0] + '–' + (sel[1] - 1)) : '—',
+      hex: sel ? this.hexRange(m.frame, sel[0], sel[1], 10) : '—',
+      about: f.about
+    };
+
+    const pkey = cur0.u.key;
+    const protoOpts = this.protocols().map((p) => {
+      const on = pkey === p.key;
+      return {
+        label: p.label, t: p.t, pressed: on ? 'true' : 'false',
+        bg: on ? '#17130C' : 'transparent', border: on ? '#5A4422' : 'transparent',
+        fg: on ? A : '#A6A6A6', tagFg: on ? A : B,
+        pick: () => { this.stopTimer(); this.setState({ draft: p.url, url: p.url, playing: false, field: 0 }); }
+      };
+    });
+
+    const lineCount = cur0.text.split('\n').length;
+    const app = m.app;
+
+    return {
+      draft: s.draft,
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      onKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.send(); } },
+      onSend: () => this.send(),
+      sendLabel: s.playing ? 'Stop' : 'Send',
+      protoOpts,
+      payloadText: cur0.text,
+      payloadRows: Math.min(10, Math.max(2, lineCount)),
+      payloadInfo: app.name + ' · ' + app.plain.length + ' B' + (app.tls ? ' → ' + m.payload.length + ' B encrypted' : ''),
+      payloadHint: app.hint,
+      isCustom: cur0.custom,
+      resetFg: cur0.custom ? '#ECECEC' : '#5C5C5C',
+      onPayload: (e) => { const v = e.target.value.slice(0, 600); const p = Object.assign({}, this.state.payloads); p[pkey] = v; this.setState({ payloads: p }); },
+      onReset: () => { const p = Object.assign({}, this.state.payloads); delete p[pkey]; this.setState({ payloads: p }); },
+      isDns: pkey === 'dns',
+      dnsTypes: ['A', 'AAAA', 'MX', 'TXT'].map((t) => ({ label: t, pressed: s.dnsType === t ? 'true' : 'false', bg: s.dnsType === t ? '#1C1C1C' : 'transparent', fg: s.dnsType === t ? A : '#8F8F8F', pick: () => this.setState({ dnsType: t }) })),
+      dirOpts: [{ label: 'Send ↓', v: 'send' }, { label: 'Receive ↑', v: 'recv' }].map((d) => ({
+        label: d.label, pressed: s.dir === d.v ? 'true' : 'false',
+        bg: s.dir === d.v ? '#1C1C1C' : 'transparent', fg: s.dir === d.v ? '#ECECEC' : '#8F8F8F',
+        pick: () => { this.stopTimer(); this.setState({ dir: d.v, playing: false }); }
+      })),
+      stackHint: s.dir === 'send' ? '7 → 1' : '1 → 7',
+      groups, miniSegs, frameBytes: m.E,
+      layerNum: L, meta,
+      playing: s.playing,
+      playLabel: (s.dir === 'send' ? 'encapsulating' : 'decapsulating') + ' ' + (s.step + 1) + '/7',
+      segs, pduCaption: m.pduCaption[L],
+      isL7: L === 7, isL6: L === 6, isL5: L === 5, isGrid: L === 4 || L === 3, isL2: L === 2, isL1: L === 1,
+      fieldList, gridFields, gridPayload,
+      chars, charCount: Math.max(1, chars.length), hasChars: chars.length > 0, hasTransform: !!tr, transformLabel: tr ? tr.label : '',
+      sock: m.sock,
+      hops: m.hops.map((h) => Object.assign({}, h, { flex: h.hasLink ? '1 1 240px' : '0 0 auto', linkStyle: h.solid ? 'solid' : 'dashed', linkColor: h.solid ? B : '#3A3A3A', labelColor: h.solid ? B : '#8F8F8F' })),
+      encOpts: ['manchester', 'nrz', 'mlt3'].map((k) => ({ label: ENC[k].label, pressed: s.enc === k ? 'true' : 'false', bg: s.enc === k ? '#1C1C1C' : 'transparent', fg: s.enc === k ? A : '#8F8F8F', pick: () => this.setState({ enc: k }) })),
+      waveBits, wavePath, gridPath,
+      waveLegend: ENC[s.enc].legend,
+      waveAria: ENC[s.enc].label + ' signal for bits ' + bits.join(''),
+      hexRows,
+      exp,
+      onPrev: () => this.step(-1),
+      onNext: () => this.step(1),
+      summary: m.summary
+    };
+  }
+}
+</script>
+
+
+</body></html>

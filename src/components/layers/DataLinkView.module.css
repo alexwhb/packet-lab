@@ -1,0 +1,147 @@
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.strip {
+  display: flex;
+  gap: 3px;
+  min-width: 620px;
+}
+
+.preamble {
+  flex: 3 1 0px;
+  border-radius: var(--radius-cell);
+  border: 1px dashed var(--color-border-dashed);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 80px;
+  box-sizing: border-box;
+  color: var(--color-text-faint);
+}
+
+.preambleSize {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.cell {
+  flex: 1 1 0px;
+  min-width: 0;
+  border-radius: var(--radius-cell);
+  border: 1px solid var(--color-border-cell);
+  background: var(--color-surface-cell);
+  color: var(--color-text);
+  padding: 8px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 80px;
+}
+
+.cell[data-payload] {
+  border-color: var(--color-sage-border);
+  background: var(--color-sage-tint);
+  color: var(--color-sage);
+}
+
+.cell[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.caption {
+  font-size: 11px;
+}
+
+.cell .caption {
+  opacity: 0.7;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.hops {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hop {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.hop[data-linked] {
+  flex: 1 1 240px;
+}
+
+.device {
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-button);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  box-sizing: border-box;
+}
+
+.deviceTitle {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mac {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.link {
+  flex: 1;
+  min-width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.linkLabel {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.linkLine {
+  width: 100%;
+  border-top: 1px dashed var(--color-line-idle);
+}
+
+.link[data-solid='true'] .linkLabel {
+  color: var(--color-sage);
+}
+
+.link[data-solid='true'] .linkLine {
+  border-top: 1px solid var(--color-sage);
+}

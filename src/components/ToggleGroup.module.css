@@ -1,0 +1,61 @@
+.group {
+  display: flex;
+}
+
+.option {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.option[aria-pressed='true'] {
+  background: var(--color-toggle-on);
+}
+
+/* Header: Send / Receive */
+.boxed {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  padding: 3px;
+  gap: 3px;
+}
+
+.boxed .option {
+  border-radius: var(--radius-button);
+  padding: 0 12px;
+  min-height: 36px;
+  font-size: 13px;
+}
+
+.boxed .option[aria-pressed='true'] {
+  color: var(--color-text);
+}
+
+/* Inside panels: line code, DNS record type */
+.compact,
+.compactMono {
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-button);
+  padding: 2px;
+  gap: 2px;
+}
+
+.compact .option,
+.compactMono .option {
+  border-radius: var(--radius-chip);
+  padding: 0 10px;
+  min-height: 30px;
+  font-size: 12px;
+}
+
+.compactMono .option {
+  min-height: 28px;
+  font-family: var(--font-mono);
+}
+
+.compact .option[aria-pressed='true'],
+.compactMono .option[aria-pressed='true'] {
+  color: var(--color-accent);
+}

@@ -1,0 +1,27 @@
+.panel {
+  padding: 18px 20px;
+}
+
+.list {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 13px;
+}
+
+.label {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.value {
+  margin: 0;
+  font-family: var(--font-mono);
+  text-align: right;
+  word-break: break-all;
+}

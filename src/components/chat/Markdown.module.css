@@ -1,0 +1,135 @@
+.markdown {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol,
+.markdown pre,
+.markdown blockquote,
+.markdown .tableWrap {
+  margin: 0 0 10px;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 18px;
+}
+
+.markdown li + li {
+  margin-top: 4px;
+}
+
+.markdown li > ul,
+.markdown li > ol {
+  margin: 4px 0 0;
+}
+
+.markdown h3,
+.markdown h4,
+.markdown h5 {
+  margin: 14px 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.markdown h3 {
+  font-size: 15px;
+}
+
+.markdown strong {
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+
+.markdown a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent-border);
+  text-underline-offset: 2px;
+}
+
+.markdown a:hover {
+  text-decoration-color: currentColor;
+}
+
+.markdown a:focus-visible {
+  outline: 2px solid var(--color-sage);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.markdown :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--color-code-inline);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-chip);
+  padding: 1px 4px;
+  overflow-wrap: anywhere;
+}
+
+.markdown pre {
+  background: var(--color-code-block);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-button);
+  padding: 10px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.markdown pre code {
+  font-family: inherit;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+
+.markdown blockquote {
+  padding-left: 12px;
+  border-left: 2px solid var(--color-border-control);
+  color: var(--color-text-secondary);
+}
+
+.markdown hr {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 14px 0;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.markdown table {
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid var(--color-border);
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown th {
+  font-weight: 600;
+  background: var(--color-row-hover);
+}

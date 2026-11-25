@@ -1,0 +1,59 @@
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: 80px repeat(var(--columns), minmax(44px, 1fr));
+  gap: 3px;
+  min-width: 520px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+}
+
+.rowLabel {
+  font-family: var(--font-sans);
+  color: var(--color-text-muted);
+  text-align: left;
+  align-self: center;
+}
+
+.char,
+.hex,
+.binary {
+  background: var(--color-surface-chip);
+  border-radius: var(--radius-chip);
+}
+
+.char {
+  padding: 7px 0;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.hex {
+  padding: 6px 0;
+  color: var(--color-text-secondary);
+}
+
+.binary {
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1.35;
+  white-space: pre-line;
+}
+
+.transformed {
+  border: 1px solid var(--color-sage-strong);
+  border-radius: var(--radius-chip);
+  padding: 5px 0;
+  color: var(--color-sage);
+}

@@ -1,0 +1,107 @@
+.panel {
+  padding: 20px;
+  gap: 14px;
+}
+
+.eyebrow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.position {
+  font-family: var(--font-mono);
+}
+
+.name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-accent);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.about {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 14px;
+  font-size: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--color-text-muted);
+}
+
+.facts dd {
+  margin: 0;
+  font-family: var(--font-mono);
+}
+
+.facts .hex {
+  word-break: break-all;
+}
+
+.nav {
+  display: flex;
+  gap: 8px;
+}
+
+.prev,
+.next {
+  flex: 1;
+  min-height: 40px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+
+.prev {
+  border: 1px solid var(--color-border-control);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.next {
+  border: 1px solid var(--color-sage-strong);
+  background: var(--color-sage-button);
+  color: var(--color-sage);
+}
+
+.ask {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  margin-top: -6px; /* 8 px under Previous / Next, like the gap between them */
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.ask:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-row-hover);
+}

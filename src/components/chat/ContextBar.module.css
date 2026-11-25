@@ -1,0 +1,78 @@
+.bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Like the stack nav's group labels */
+.label {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-right: auto;
+  padding: 3px 8px;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-button);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Like a selected field */
+.chip[data-on] {
+  border-color: var(--color-accent-border);
+  background: var(--color-accent-tint);
+  color: var(--color-accent);
+}
+
+.switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 20px;
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-control);
+  border-radius: 10px;
+  background: var(--color-toggle-on);
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-text-dim);
+  transition: transform 0.15s ease;
+}
+
+.switch[aria-checked='true'] {
+  border-color: var(--color-sage-strong);
+  background: var(--color-sage-button);
+}
+
+.switch[aria-checked='true'] .knob {
+  transform: translateX(14px);
+  background: var(--color-sage);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knob {
+    transition: none;
+  }
+}
